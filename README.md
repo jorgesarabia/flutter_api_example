@@ -1,6 +1,10 @@
 # flutter_api_example
 
-A new Flutter project.
+Ejemplo de comunicación con un API.
+
+Para este ejemplo se toman las API:
+- https://restcountries.eu/
+- https://www.countryflags.io/
 
 ## Getting Started
 
