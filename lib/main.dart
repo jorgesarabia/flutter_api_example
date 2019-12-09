@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_api_exaple/country_card.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -27,13 +28,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   static final String host = "https://restcountries.eu/rest/v2/";
+  TextEditingController _searchController = TextEditingController();
+  List _body = [];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_handleChange);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -44,49 +52,91 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: <Widget>[
-          SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              RaisedButton(
-                onPressed: _getAllCountries,
-                color: Colors.green,
-                child: Text("Get all"),
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Card(
+              elevation: 5,
+              child: Row(
+                children: <Widget>[
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Enter a search term',
+                      ),
+                    ),
+                  ),
+                  _theIcon(),
+                  SizedBox(width: 10),
+                ],
               ),
-              SizedBox(width: 10),
-              RaisedButton(
-                onPressed: _getArgentina,
-                color: Colors.amber,
-                child: Text("Get Argentina"),
-              ),
-            ],
-          )
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              children: _countryList(),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  void _getAllCountries() async {
-    print("Get all the countries");
-    final String url = "${host}all";
+  void _handleChange() {
+    final text = _searchController.text.toString();
+    _getCountry(text);
+  }
+
+  Widget _theIcon() {
+    if (_searchController.text.length > 0) {
+      return GestureDetector(
+        child: Icon(
+          Icons.close,
+          color: Colors.blue,
+        ),
+        onTap: () {
+          _searchController.text = "";
+        },
+      );
+    } else {
+      return Icon(Icons.search);
+    }
+  }
+
+  void _getCountry(String name) async {
+    String url;
     // This is the call
+    if (name.length > 0) {
+      url = "${host}name/$name";
+    } else {
+      url = "${host}all/";
+    }
+
     final response = await http.get(url);
     // This is for parse the response
-    final List<dynamic> body = jsonDecode(response.body);
-    // This is the way to acces to the datas
-    body.forEach((field) {
-      print(field['name']);
+    if (response.statusCode == 200) {
+      print("Respuesta exitosa\nstatusCode = ${response.statusCode}");
+    } else {
+      print("Respuesta fallida\nstatusCode = ${response.statusCode}");
+      return;
+    }
+    // change the state
+    setState(() {
+      _body = jsonDecode(response.body);
     });
   }
 
-  void _getArgentina() async {
-    print("Get one country (Argentina in this case)");
-    final String url = "${host}name/Argentina";
-    // This is the call
-    final response = await http.get(url);
-    // This is for parse the response
-    final body = jsonDecode(response.body)[0];
-    // This is the way to acces to the datas
-    print(body['name']);
+  List<Widget> _countryList() {
+    List<Widget> list = [];
+    final int length = _body.length < 10 ? _body.length : 10;
+    for (int x = 0; x < length; x++) {
+      list.add(CountryCard(
+        countryName: _body[x]['name'],
+        alphaCode: _body[x]['alpha2Code'],
+      ));
+    }
+    return list;
   }
 }

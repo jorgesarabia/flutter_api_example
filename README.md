@@ -1,4 +1,4 @@
-# flutter_api_exaple
+# flutter_api_example
 
 A new Flutter project.
 
