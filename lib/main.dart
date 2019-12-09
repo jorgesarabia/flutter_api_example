@@ -160,9 +160,13 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> list = [];
     final int length = _body.length < 10 ? _body.length : 10;
     for (int x = 0; x < length; x++) {
+      print("${_body[x]}");
       list.add(CountryCard(
         countryName: _body[x]['name'],
         alphaCode: _body[x]['alpha2Code'],
+        capital: _body[x]['capital'],
+        region: _body[x]['region'],
+        subregion: _body[x]['subregion'],
       ));
     }
     return list;

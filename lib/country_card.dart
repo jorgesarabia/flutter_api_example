@@ -3,22 +3,28 @@ import 'package:flutter/material.dart';
 class CountryCard extends StatelessWidget {
   final String countryName;
   final String alphaCode;
+  final String region;
+  final String subregion;
+  final String capital;
 
   CountryCard({
     @required this.countryName,
     @required this.alphaCode,
+    @required this.region,
+    @required this.subregion,
+    @required this.capital,
   });
 
   @override
   Widget build(BuildContext context) {
-    final userDetails = Column(
+    final countryDetail = Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Flexible(
           child: Text(
-            "$countryName",
+            "$countryName ($region)",
             style: TextStyle(
               fontSize: 15,
             ),
@@ -27,7 +33,7 @@ class CountryCard extends StatelessWidget {
         SizedBox(height: 5.0),
         Flexible(
           child: Text(
-            "$countryName",
+            "capital: $capital",
             textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 15,
@@ -38,7 +44,7 @@ class CountryCard extends StatelessWidget {
         SizedBox(height: 1.0),
         Flexible(
           child: Text(
-            "$countryName",
+            "$subregion",
             textAlign: TextAlign.left,
             style: TextStyle(
               fontSize: 15,
@@ -49,12 +55,11 @@ class CountryCard extends StatelessWidget {
       ],
     );
 
-    final photo = Container(
+    final flag = Container(
       margin: EdgeInsets.only(top: 10.0, left: 10.0, bottom: 10.0),
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        // shape: BoxShape.circle,
         image: DecorationImage(
           fit: BoxFit.cover,
           image: NetworkImage("https://www.countryflags.io/$alphaCode/flat/64.png"),
@@ -67,11 +72,11 @@ class CountryCard extends StatelessWidget {
       child: Row(
         children: <Widget>[
           Flexible(
-            child: photo,
+            child: flag,
           ),
           SizedBox(width: 10),
           Flexible(
-            child: userDetails,
+            child: countryDetail,
           ),
         ],
       ),
