@@ -31,10 +31,12 @@ class _MyHomePageState extends State<MyHomePage> {
   static final String host = "https://restcountries.eu/rest/v2/";
   TextEditingController _searchController = TextEditingController();
   List _body = [];
+  bool isMatch = false;
 
   @override
   void initState() {
     super.initState();
+    _getCountry("");
     _searchController.addListener(_handleChange);
   }
 
@@ -74,19 +76,40 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          Expanded(
-            child: ListView(
-              children: _countryList(),
-            ),
-          ),
+          isMatch
+              ? Expanded(
+                  child: ListView(
+                    children: _countryList(),
+                  ),
+                )
+              : _noMatchCard(),
         ],
       ),
     );
   }
 
   void _handleChange() {
-    final text = _searchController.text.toString();
+    final String text = _searchController.text.toString();
     _getCountry(text);
+  }
+
+  Widget _noMatchCard() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Card(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Text(
+                "No hay coincidencias",
+                style: TextStyle(fontSize: 22),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _theIcon() {
@@ -114,17 +137,22 @@ class _MyHomePageState extends State<MyHomePage> {
       url = "${host}all/";
     }
 
-    final response = await http.get(url);
+    final http.Response response = await http.get(url);
     // This is for parse the response
-    if (response.statusCode == 200) {
-      print("Respuesta exitosa\nstatusCode = ${response.statusCode}");
-    } else {
+    if (response.statusCode != 200) {
+      print("${response.body}");
       print("Respuesta fallida\nstatusCode = ${response.statusCode}");
+      if (jsonDecode(response.body)['message'].contains("Not Found")) {
+        setState(() {
+          isMatch = false;
+        });
+      }
       return;
     }
     // change the state
     setState(() {
       _body = jsonDecode(response.body);
+      isMatch = true;
     });
   }
 
